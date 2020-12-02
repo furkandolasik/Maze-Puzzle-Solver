@@ -16,7 +16,7 @@ public class Node implements InterfaceNode {
     private final Collection<Node> children = new ArrayList<Node>();
     private Node predecessor;
     private int cost = 0;
-    private int heuristic = 0;
+    private double heuristic = 0;
 
 
     public void reset() {
@@ -136,13 +136,13 @@ public class Node implements InterfaceNode {
 
 
     @Override
-    public int getHeuristic() {
+    public double getHeuristic() {
         return heuristic;
     }
 
 
     @Override
-    public void setHeuristic(int heuristic) {
+    public void setHeuristic(double heuristic) {
         this.heuristic = heuristic;
     }
 

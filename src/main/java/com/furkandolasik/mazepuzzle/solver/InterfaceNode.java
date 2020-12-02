@@ -32,9 +32,9 @@ public interface InterfaceNode {
 
     public void setSelected(boolean selected);
 
-    int getHeuristic();
+    double getHeuristic();
 
-    void setHeuristic(int heuristic);
+    void setHeuristic(double heuristic);
 
     int getCost();
 

@@ -19,11 +19,21 @@ public class GridController {
     public ResponseEntity<Map> getNodeData(@RequestBody String input) {
         JSONObject data = new JSONObject(input); //jsona çevirdik
         JSONArray nodeData = data.getJSONArray("nodes");
+
         int startX = data.getInt("startX");
         int startY = data.getInt("startY");
         int endX = data.getInt("endX");
         int endY = data.getInt("endY");
-        boolean[][] matrix = new boolean[nodeData.length()][nodeData.getJSONArray(0).length()];
+
+        int heuristicNo = data.getInt("heuristic");
+
+        System.out.println("Heuristic: " + heuristicNo);
+
+        int ROWS = nodeData.length();
+        int COLS = nodeData.getJSONArray(0).length();
+
+
+        boolean[][] matrix = new boolean[ROWS][COLS];
         for (int i = 0; i < nodeData.length(); i++) {
             JSONArray temp = nodeData.getJSONArray(i);
             for (int j = 0; j < temp.length(); j++) {
@@ -31,19 +41,37 @@ public class GridController {
             }
         }
 
-        MazeSolver aStar = new MazeSolver(matrix, startX, startY, endX, endY);
+        long startTime = System.currentTimeMillis();
+        MazeSolver aStar = new MazeSolver(matrix, heuristicNo, startX, startY, endX, endY);
+        long endTime = System.currentTimeMillis();
+        System.out.println("duration: " + (endTime - startTime));
+
         Stack<Node> shortestPath = aStar.getPath();
-        HashMap visited = aStar.getVisited();
-
-        Map<String, Object> response = new HashMap<>();
-
-        List<String> visitedList = new ArrayList<>();
-        for (Node node : shortestPath) {
-            System.out.println(node.getX() + "," + node.getY());
-            visitedList.add(node.getX() + "," + node.getY());
+        List<String> shortestPathList = new ArrayList<>();
+        if (shortestPath.size() != 0) {
+            for (Node node : shortestPath) {
+                //System.out.println(node.getX() + "," + node.getY());
+                shortestPathList.add(node.getX() + "," + node.getY());
+            }
         }
-        response.put("shortestPath", visitedList);
-        //System.out.println(response);
+
+        ArrayList<Node> closedNodesList = aStar.getVisited();
+        ArrayList<String> closedNodes = new ArrayList<>();
+        for (Node node : closedNodesList) {
+            closedNodes.add((node.getX() + "," + node.getY()));
+        }
+
+
+        ArrayList<Node> openNodesList = aStar.getPotential();
+        ArrayList<String> openNodes = new ArrayList<>();
+        for (Node node : openNodesList) {
+            openNodes.add((node.getX() + "," + node.getY()));
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("shortestPath", shortestPathList);
+        response.put("openNodes", openNodes);
+        response.put("closedNodes", closedNodes);
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -5,6 +5,12 @@ import java.util.*;
 public interface InterfaceMazeSolver {
 
     void setConnections();
-    void setHeuristic();
+    void setHeuristicManhattan();
+    void setHeuristicZero();
+    void setHeuristicChebyshev();
+    void setHeuristicOctile();
+    void setHeuristicEuclidean();
+
+
     Stack<Node> searchPath();
 }
