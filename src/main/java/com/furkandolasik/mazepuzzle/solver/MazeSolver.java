@@ -246,7 +246,7 @@ public class MazeSolver implements InterfaceMazeSolver {
     public void setHeuristicZero() {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[0].length; j++) {
-                matrix[i][j].setHeuristic(Math.abs(i - endX) + Math.abs(j - endY));
+                matrix[i][j].setHeuristic(0);
 
             }
         }
