@@ -6,19 +6,22 @@ public class MazeSolver implements InterfaceMazeSolver {
 
     private final Node[][] matrix;
     private HashMap<Node, Double> visited;
+    private ArrayList<Node> visitedBFS;
     private final Stack<Node> path;
     private final int startX;
     private final int startY;
     private final int endX;
     private final int endY;
     ArrayList<Node> potential;
+    private int searchNo;
 
-    public MazeSolver(boolean[][] arr,int heuristicNo, int startX, int startY, int endX, int endY) {
+    public MazeSolver(boolean[][] arr, int searchNo, int heuristicNo, int startX, int startY, int endX, int endY) {
         matrix = new Node[arr.length][arr[0].length];
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
+        this.searchNo=searchNo;
 
         for (int i = 0; i < matrix.length; i++) { // obstacle ya da değil init
             for (int j = 0; j < matrix[0].length; j++) {
@@ -28,30 +31,88 @@ public class MazeSolver implements InterfaceMazeSolver {
                 matrix[i][j].setObstacle(arr[i][j]);
             }
         }
-        if(heuristicNo==0){
-            setHeuristicManhattan();
-        }
-        else if(heuristicNo==1){
-            setHeuristicEuclidean();
-        }
-        else if(heuristicNo==2){
-            setHeuristicOctile();
-        }
-        else if(heuristicNo==3){
-            setHeuristicChebyshev();
-        }
-        else {
-            setHeuristicZero();
-        }
         setConnections();
-        path = searchPath();
+
+        if (searchNo==0){ // AStar or Dijkstra
+            if(heuristicNo==0){
+                setHeuristicManhattan();
+            }
+            else if(heuristicNo==1){
+                setHeuristicEuclidean();
+            }
+            else if(heuristicNo==2){
+                setHeuristicOctile();
+            }
+            else if(heuristicNo==3){
+                setHeuristicChebyshev();
+            }
+            else {
+                setHeuristicZero();
+            }
+            path = searchPath();
+        }
+        else { // BFS
+            path = searchPathBFS();
+        }
+    }
+    public Stack<Node> searchPathBFS() {
+
+        Stack<Node> path = new Stack<Node>();
+        Node start = matrix[startX][startY];
+        visitedBFS = new ArrayList<Node>();
+        potential = new ArrayList<Node>();
+        ArrayList<Node> tempPotential = new ArrayList<Node>();
+        AtomicBoolean flag= new AtomicBoolean(true);
+        AtomicBoolean potentialFlag= new AtomicBoolean(true);
+
+        visitedBFS.add(start);
+        start.getChildren().forEach( child ->{
+            child.setParent(start);
+            if(!visitedBFS.contains(child) && !potential.contains(child)){
+                tempPotential.add(child);
+            }
+        });
+
+        while(potentialFlag.get()){
+            potential = (ArrayList<Node>) tempPotential.clone();
+            tempPotential.clear();
+            potential.forEach( p -> {
+                if(p.equals(matrix[endX][endY]) && flag.get()){
+                    Node iter = p;
+                    path.add(iter);
+                    flag.set(false);
+                    potentialFlag.set(false);
+                    while(!iter.getParent().equals(matrix[startX][startY])){
+                        path.add(iter.getParent());
+                        iter = iter.getParent();
+                    }
+                    path.add(iter.getParent());
+                }
+                else{
+                    p.getChildren().forEach(child -> {
+                        if(!visitedBFS.contains(child) && !tempPotential.contains(child)){
+                            child.setParent(p);
+                            tempPotential.add(child);
+                        }
+                    });
+                    visitedBFS.add(p);
+                }
+            });
+        }
+
+        return path;
     }
     public ArrayList<Node> getVisited() {
-        ArrayList<Node> visitedArraylist = new ArrayList<Node>();
-        for(Node nodes : visited.keySet()){
-            visitedArraylist.add(nodes);
+        if(searchNo==0){
+            ArrayList<Node> visitedArraylist = new ArrayList<Node>();
+            for(Node nodes : visited.keySet()){
+                visitedArraylist.add(nodes);
+            }
+            return visitedArraylist;
         }
-        return visitedArraylist;
+        else{
+            return visitedBFS;
+        }
     }
     public ArrayList<Node> getPotential(){
         return potential;
@@ -249,6 +310,34 @@ public class MazeSolver implements InterfaceMazeSolver {
                 matrix[i][j].setHeuristic(0);
 
             }
+        }
+    }
+    public static void main(String args[]){
+
+        boolean[][] maze = new boolean[5][5];
+
+        for(int i =0;i<maze.length;i++){
+            for(int j=0;j<maze[0].length;j++){
+                maze[i][j]=false;
+            }
+        }
+        maze[0][2]=true;
+        maze[1][1]=true;
+        maze[2][2]=true;
+        maze[3][2]=true;
+
+        MazeSolver m = new MazeSolver(maze,1,123,0,0,1,3);
+        System.out.println("PATH NODES - - - - -");
+        for(Node nodes : m.getPath()){
+            System.out.println(nodes.getX()+" "+nodes.getY());
+        }
+        System.out.println("VISITED NODES - - - - -");
+        for(Node nodes : m.getVisited()){
+            System.out.println(nodes.getX()+" "+nodes.getY());
+        }
+        System.out.println("POTENTIAL NODES - - - - -");
+        for(Node nodes : m.getPath()){
+            System.out.println(nodes.getX()+" "+nodes.getY());
         }
     }
 }
