@@ -20,14 +20,21 @@ public class GridController {
         JSONObject data = new JSONObject(input); //jsona çevirdik
         JSONArray nodeData = data.getJSONArray("nodes");
 
+        int functionNumber = data.getInt("function");
         int startX = data.getInt("startX");
         int startY = data.getInt("startY");
         int endX = data.getInt("endX");
         int endY = data.getInt("endY");
+        int heuristicNumber = data.getInt("heuristic");
+        System.out.println("###################");
+        System.out.println("functionNumber: " + functionNumber + "\n"
+                + "startX: " + startX + "\n"
+                + "startY: " + startY + "\n"
+                + "endX: " + endX + "\n"
+                + "endY: " + endY + "\n"
+                + "heuristicNumber: " + heuristicNumber);
 
-        int heuristicNo = data.getInt("heuristic");
-
-        System.out.println("Heuristic: " + heuristicNo);
+        System.out.println("###################");
 
         int ROWS = nodeData.length();
         int COLS = nodeData.getJSONArray(0).length();
@@ -41,37 +48,78 @@ public class GridController {
             }
         }
 
-        long startTime = System.currentTimeMillis();
-        MazeSolver aStar = new MazeSolver(matrix, heuristicNo, startX, startY, endX, endY);
-        long endTime = System.currentTimeMillis();
-        System.out.println("duration: " + (endTime - startTime));
+        Map<String, Object> response = new HashMap<>(); // resulting json
 
-        Stack<Node> shortestPath = aStar.getPath();
-        List<String> shortestPathList = new ArrayList<>();
-        if (shortestPath.size() != 0) {
-            for (Node node : shortestPath) {
-                //System.out.println(node.getX() + "," + node.getY());
-                shortestPathList.add(node.getX() + "," + node.getY());
+        if (functionNumber == 0) { //aStar
+            long startTime = System.currentTimeMillis();
+            System.out.println("A*");
+            MazeSolver aStar = new MazeSolver(matrix, functionNumber, heuristicNumber, startX, startY, endX, endY);
+
+
+            long endTime = System.currentTimeMillis();
+            System.out.println("duration: " + (endTime - startTime));
+
+            Stack<Node> shortestPath = aStar.getPath();
+            List<String> shortestPathList = new ArrayList<>();
+            if (shortestPath.size() != 0) {
+                for (Node node : shortestPath) {
+                    //System.out.println(node.getX() + "," + node.getY());
+                    shortestPathList.add(node.getX() + "," + node.getY());
+                }
             }
+
+            ArrayList<Node> closedNodesList = aStar.getVisited();
+            ArrayList<String> closedNodes = new ArrayList<>();
+            for (Node node : closedNodesList) {
+                closedNodes.add((node.getX() + "," + node.getY()));
+            }
+
+
+            ArrayList<Node> openNodesList = aStar.getPotential();
+            ArrayList<String> openNodes = new ArrayList<>();
+            for (Node node : openNodesList) {
+                openNodes.add((node.getX() + "," + node.getY()));
+            }
+
+
+            response.put("shortestPath", shortestPathList);
+            response.put("openNodes", openNodes);
+            response.put("closedNodes", closedNodes);
+
+        } else if (functionNumber == 1) { //BFS
+            System.out.println("DFS");
+            MazeSolver bfs = new MazeSolver(matrix, functionNumber, heuristicNumber, startX, startY, endX, endY);
+
+            Stack<Node> shortestPath = bfs.getPath();
+            List<String> shortestPathList = new ArrayList<>();
+            if (shortestPath.size() != 0) {
+                for (Node node : shortestPath) {
+                    //System.out.println(node.getX() + "," + node.getY());
+                    shortestPathList.add(node.getX() + "," + node.getY());
+                }
+            }
+
+            ArrayList<Node> closedNodesList = bfs.getVisited();
+            ArrayList<String> closedNodes = new ArrayList<>();
+            for (Node node : closedNodesList) {
+                closedNodes.add((node.getX() + "," + node.getY()));
+            }
+
+
+            ArrayList<Node> openNodesList = bfs.getPotential();
+            ArrayList<String> openNodes = new ArrayList<>();
+            for (Node node : openNodesList) {
+                openNodes.add((node.getX() + "," + node.getY()));
+            }
+
+
+            response.put("shortestPath", shortestPathList);
+            response.put("openNodes", openNodes);
+            response.put("closedNodes", closedNodes);
+
+
         }
-
-        ArrayList<Node> closedNodesList = aStar.getVisited();
-        ArrayList<String> closedNodes = new ArrayList<>();
-        for (Node node : closedNodesList) {
-            closedNodes.add((node.getX() + "," + node.getY()));
-        }
-
-
-        ArrayList<Node> openNodesList = aStar.getPotential();
-        ArrayList<String> openNodes = new ArrayList<>();
-        for (Node node : openNodesList) {
-            openNodes.add((node.getX() + "," + node.getY()));
-        }
-        Map<String, Object> response = new HashMap<>();
-        response.put("shortestPath", shortestPathList);
-        response.put("openNodes", openNodes);
-        response.put("closedNodes", closedNodes);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 }
