@@ -150,9 +150,9 @@ public class GridController {
                 openNodes.add((node.getX() + "," + node.getY()));
             }
 
-            response.put("shortestPath", new ArrayList<String>());
-            response.put("openNodes", new ArrayList<String>());
-            response.put("closedNodes", new ArrayList<String>());
+            response.put("shortestPath", shortestPathList);
+            response.put("openNodes", openNodes);
+            response.put("closedNodes", closedNodes);
 
         }
 
