@@ -1,16 +1,15 @@
-package com.furkandolasik.mazepuzzle.algorithms.bfs;
+package com.furkandolasik.mazepuzzle.algorithms;
 
 import java.util.*;
 
 public interface InterfaceMazeSolver {
 
     void setConnections();
-    void setHeuristicManhattan();
     void setHeuristicZero();
     void setHeuristicChebyshev();
     void setHeuristicOctile();
     void setHeuristicEuclidean();
 
 
-    Stack<MyNode> searchPath(boolean algorithm);
+    Stack<Node> searchPath(boolean algorithm);
 }

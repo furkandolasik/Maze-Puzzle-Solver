@@ -1,4 +1,4 @@
-package com.furkandolasik.mazepuzzle.algorithms.bfs;
+package com.furkandolasik.mazepuzzle.algorithms;
 
 import java.util.*;
 
@@ -6,11 +6,11 @@ import java.util.*;
 
 public interface InterfaceNode {
 
-    Collection<MyNode> getChildren();
+    Collection<Node> getChildren();
 
-    MyNode getPredecessor();
+    Node getPredecessor();
 
-    void setPredecessor(MyNode myNode);
+    void setPredecessor(Node node);
 
     public boolean isOpen();
 
@@ -26,9 +26,9 @@ public interface InterfaceNode {
 
     public boolean isSelected();
 
-    public MyNode getParent();
+    public Node getParent();
 
-    public void  setParent(MyNode parent);
+    public void  setParent(Node parent);
 
     public void setSelected(boolean selected);
 

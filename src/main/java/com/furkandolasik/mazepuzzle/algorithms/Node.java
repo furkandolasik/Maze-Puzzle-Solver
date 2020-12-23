@@ -1,9 +1,9 @@
-package com.furkandolasik.mazepuzzle.algorithms.bfs;
+package com.furkandolasik.mazepuzzle.algorithms;
 
 import java.util.*;
 
 
-public class MyNode implements InterfaceNode {
+public class Node implements InterfaceNode {
 
     private boolean open = true;
     private boolean visited = false;
@@ -12,9 +12,9 @@ public class MyNode implements InterfaceNode {
     private int x;
     private int y;
 
-    private MyNode parent;
-    private final Collection<MyNode> children = new ArrayList<MyNode>();
-    private MyNode predecessor;
+    private Node parent;
+    private final Collection<Node> children = new ArrayList<Node>();
+    private Node predecessor;
     private int cost = 0;
     private double heuristic = 0;
 
@@ -89,7 +89,7 @@ public class MyNode implements InterfaceNode {
         this.selected = selected;
     }
 
-    public boolean addChild(MyNode child) {
+    public boolean addChild(Node child) {
 
         return this.children.add(child);
     }
@@ -97,29 +97,29 @@ public class MyNode implements InterfaceNode {
 
 
     @Override
-    public Collection<MyNode> getChildren() {
+    public Collection<Node> getChildren() {
         return this.children;
     }
 
-    public MyNode getParent(){
+    public Node getParent(){
         return parent;
     }
 
-    public void setParent(MyNode parent){
+    public void setParent(Node parent){
         this.parent = parent;
     }
 
 
 
     @Override
-    public MyNode getPredecessor() {
+    public Node getPredecessor() {
         return predecessor;
     }
 
 
     @Override
-    public void setPredecessor(MyNode myNode) {
-        this.predecessor = myNode;
+    public void setPredecessor(Node node) {
+        this.predecessor = node;
     }
 
 

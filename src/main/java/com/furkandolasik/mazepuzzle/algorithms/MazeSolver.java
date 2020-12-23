@@ -1,27 +1,25 @@
-package com.furkandolasik.mazepuzzle.algorithms.bfs;
+package com.furkandolasik.mazepuzzle.algorithms;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
-
 public class MazeSolver implements InterfaceMazeSolver {
 
-    private final MyNode[][] matrix;
-    private HashMap<MyNode, Double> visited;
-    private ArrayList<MyNode> visitedBFS;
-    private final Stack<MyNode> path;
+    private final Node[][] matrix;
+    private HashMap<Node, Double> visited;
+    private ArrayList<Node> visitedBFS;
+    private final Stack<Node> path;
     private final int startX;
     private final int startY;
     private final int endX;
     private final int endY;
-    ArrayList<MyNode> potential;
+    ArrayList<Node> potential;
     private int searchNo;
 
     public MazeSolver(boolean[][] arr, int searchNo, int heuristicNo, int startX, int startY, int endX, int endY) { //searchNo 0 ise A* 1 ise BestFirstSearch bşkaysa BFS yapar
-        matrix = new MyNode[arr.length][arr[0].length];
+        matrix = new Node[arr.length][arr[0].length];
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
@@ -30,7 +28,7 @@ public class MazeSolver implements InterfaceMazeSolver {
 
         for (int i = 0; i < matrix.length; i++) { // obstacle ya da değil init
             for (int j = 0; j < matrix[0].length; j++) {
-                matrix[i][j] = new MyNode();
+                matrix[i][j] = new Node();
                 matrix[i][j].setX(i);
                 matrix[i][j].setY(j);
                 matrix[i][j].setObstacle(arr[i][j]);
@@ -40,15 +38,12 @@ public class MazeSolver implements InterfaceMazeSolver {
 
         if (searchNo<2){ // AStar or Dijkstra
             if(heuristicNo==0){
-                setHeuristicManhattan();
-            }
-            else if(heuristicNo==1){
                 setHeuristicEuclidean();
             }
-            else if(heuristicNo==2){
+            else if(heuristicNo==1){
                 setHeuristicOctile();
             }
-            else if(heuristicNo==3){
+            else if(heuristicNo==2){
                 setHeuristicChebyshev();
             }
             else {
@@ -65,13 +60,13 @@ public class MazeSolver implements InterfaceMazeSolver {
             path = searchPathBFS();
         }
     }
-    public Stack<MyNode> searchPathBFS() {
+    public Stack<Node> searchPathBFS() {
 
-        Stack<MyNode> path = new Stack<MyNode>();
-        MyNode start = matrix[startX][startY];
-        visitedBFS = new ArrayList<MyNode>();
-        potential = new ArrayList<MyNode>();
-        ArrayList<MyNode> tempPotential = new ArrayList<MyNode>();
+        Stack<Node> path = new Stack<Node>();
+        Node start = matrix[startX][startY];
+        visitedBFS = new ArrayList<Node>();
+        potential = new ArrayList<Node>();
+        ArrayList<Node> tempPotential = new ArrayList<Node>();
         AtomicBoolean flag= new AtomicBoolean(true);
         AtomicBoolean potentialFlag= new AtomicBoolean(true);
 
@@ -84,11 +79,11 @@ public class MazeSolver implements InterfaceMazeSolver {
         });
 
         while(potentialFlag.get()){
-            potential = (ArrayList<MyNode>) tempPotential.clone();
+            potential = (ArrayList<Node>) tempPotential.clone();
             tempPotential.clear();
             potential.forEach( p -> {
                 if(p.equals(matrix[endX][endY]) && flag.get()){
-                    MyNode iter = p;
+                    Node iter = p;
                     path.add(iter);
                     flag.set(false);
                     potentialFlag.set(false);
@@ -111,10 +106,10 @@ public class MazeSolver implements InterfaceMazeSolver {
         }
         return path;
     }
-    public ArrayList<MyNode> getVisited() {
-        if(searchNo==0){
-            ArrayList<MyNode> visitedArraylist = new ArrayList<MyNode>();
-            for(MyNode nodes : visited.keySet()){
+    public ArrayList<Node> getVisited() {
+        if(searchNo < 2){
+            ArrayList<Node> visitedArraylist = new ArrayList<Node>();
+            for(Node nodes : visited.keySet()){
                 visitedArraylist.add(nodes);
             }
             return visitedArraylist;
@@ -123,27 +118,30 @@ public class MazeSolver implements InterfaceMazeSolver {
             return visitedBFS;
         }
     }
-    public ArrayList<MyNode> getPotential(){
+    public ArrayList<Node> getPotential(){
         return potential;
     }
-    public Stack<MyNode> getPath() {
+    public Stack<Node> getPath() {
         return path;
     }
-    public Stack<MyNode> searchPath(boolean algorithm /* if true aStar else greedy BFS */ ) {
 
-        visited = new HashMap<MyNode, Double>();
-        potential = new ArrayList<MyNode>();
-        Stack<MyNode> path = new Stack<MyNode>();
+
+    public Stack<Node> searchPath(boolean algorithm /* if true aStar else greedy BFS */ ) {
+
+        visited = new HashMap<Node, Double>();
+        potential = new ArrayList<Node>();
+        Stack<Node> path = new Stack<Node>();
         boolean cont = true;
         int solverCounter = 0;
-        MyNode temp = matrix[startX][startY];
+        Node temp = matrix[startX][startY];
         matrix[startX][startY].setCost(0);
 
         while (cont) {
             double minCost = Integer.MAX_VALUE;
             visited.put(temp, temp.getHeuristic());
-            for (MyNode nodes : temp.getChildren()) {
+            for (Node nodes : temp.getChildren()) {
                 if (!visited.containsKey(nodes)) {
+                    //if(nodes.getParent().equals(null)){
                     nodes.setParent(temp);
                     if(algorithm){
                         nodes.setCost(nodes.getParent().getCost()+1);
@@ -155,12 +153,12 @@ public class MazeSolver implements InterfaceMazeSolver {
                     potential.add(child);
                 }
             });
-            for (MyNode child : potential) {
+            for (Node child : potential) {
                 if (child.getHeuristic() + child.getCost() < minCost) {
                     minCost = child.getHeuristic() + child.getCost();
                 }
             }
-            for (MyNode child : potential) {
+            for (Node child : potential) {
                 if (child.getHeuristic() + child.getCost() == minCost) {
                     temp = child;
                 }
@@ -283,14 +281,6 @@ public class MazeSolver implements InterfaceMazeSolver {
             }
         }
     }
-    public void setHeuristicManhattan() {
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix[0].length; j++) {
-                matrix[i][j].setHeuristic(Math.abs(i - endX) + Math.abs(j - endY));
-
-            }
-        }
-    }
     public void setHeuristicEuclidean() {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[0].length; j++) {
@@ -323,7 +313,7 @@ public class MazeSolver implements InterfaceMazeSolver {
             }
         }
     }
-    public static void main(String args[]){
+    /*public static void main(String args[]){
 
         boolean[][] maze = new boolean[32][32];
 
@@ -353,19 +343,19 @@ public class MazeSolver implements InterfaceMazeSolver {
         maze[2][25]=true;
         maze[3][25]=true;
 
-        MazeSolver m = new MazeSolver(maze,1,123,0,0,30,30);
+        com.furkandolasik.mazepuzzle.solver.MazeSolver m = new com.furkandolasik.mazepuzzle.solver.MazeSolver(maze,1,123,0,0,30,30);
         System.out.println("PATH NODES - - - - -");
-        for(MyNode nodes : m.getPath()){
+        for(Node nodes : m.getPath()){
             System.out.println(nodes.getX()+" "+nodes.getY());
         }
         System.out.println("VISITED NODES - - - - -");
-        for(MyNode nodes : m.getVisited()){
+        for(Node nodes : m.getVisited()){
             System.out.println(nodes.getX()+" "+nodes.getY());
         }
         System.out.println("POTENTIAL NODES - - - - -");
-        for(MyNode nodes : m.getPath()){
+        for(Node nodes : m.getPath()){
             if(!m.getVisited().contains(nodes))
                 System.out.println(nodes.getX()+" "+nodes.getY());
         }
-    }
+    }*/
 }
