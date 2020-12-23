@@ -1,7 +1,9 @@
 package com.furkandolasik.mazepuzzle.controller;
 
-import com.furkandolasik.mazepuzzle.pathfinders.AStarPathFinding;
-import com.furkandolasik.mazepuzzle.pathfinders.Node;
+import com.furkandolasik.mazepuzzle.algorithms.astarpathfinding.AStarPathFinding;
+import com.furkandolasik.mazepuzzle.algorithms.astarpathfinding.Node;
+import com.furkandolasik.mazepuzzle.algorithms.bfs.MazeSolver;
+import com.furkandolasik.mazepuzzle.algorithms.bfs.MyNode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -11,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.*;
 
 @RestController
 public class GridController {
@@ -51,51 +52,92 @@ public class GridController {
             }
         }
 
+
         Map<String, Object> response = new HashMap<>(); // resulting json
 
+        response.put("shortestPath", new ArrayList<String>());
+        response.put("openNodes", new ArrayList<String>());
+        response.put("closedNodes", new ArrayList<String>());
 
-        AStarPathFinding aStarPathFinding = new AStarPathFinding(matrix, heuristicNumber, startX, startY, endX, endY);
+        if (functionNumber == 0) { //aStar
+            AStarPathFinding aStarPathFinding = new AStarPathFinding(matrix, heuristicNumber, startX, startY, endX, endY);
 
-        ArrayList<Node<Point>> shortestPathPoint = new ArrayList<>(); //final path
-        ArrayList<String> shortestPath = new ArrayList<>();
 
-        shortestPathPoint = (ArrayList<Node<Point>>) aStarPathFinding.solve();
+            ArrayList<String> shortestPath = new ArrayList<>();
+            ArrayList<String> openNodes = new ArrayList<>();
+            ArrayList<String> closedNodes = new ArrayList<>();
+
+            ArrayList<Node<Point>> shortestPathPoint = new ArrayList<>(); //final path
+
+
+            shortestPathPoint = (ArrayList<Node<Point>>) aStarPathFinding.solve();
+
+            ArrayList<Node<Point>> nodes = new ArrayList<>();
+            nodes = (ArrayList<Node<Point>>) aStarPathFinding.getNodes();
+
+
+            for (int i = 0; i < nodes.size(); i++) {
+                //System.out.println(nodes.get(i).getState());
+
+                switch (nodes.get(i).getState()) {
+                    case OPEN:
+                        openNodes.add(i / COLS + "," + i % COLS);
+                        break;
+                    case CLOSED:
+                        closedNodes.add(i / COLS + "," + i % COLS);
+                        break;
+                    //case UNVISITED:
+                    //    break;
+                }
+            }
+
+            for (int i = 0; i < shortestPathPoint.size(); i++) {
+                int x = (int) shortestPathPoint.get(i).getObj().getX();
+                int y = (int) shortestPathPoint.get(i).getObj().getY();
+                shortestPath.add(x + "," + y);
+            }
+
+            response.put("shortestPath", shortestPath);
+            response.put("openNodes", openNodes);
+            response.put("closedNodes", closedNodes);
+
+        } else if (functionNumber == 2) { //breadth first search
+            MazeSolver bfsSolver = new MazeSolver(matrix, functionNumber, heuristicNumber, startX, startY, endX, endY);
+
+            Stack<MyNode> shortestPath = bfsSolver.getPath();
+            List<String> shortestPathList = new ArrayList<>();
+            if (shortestPath.size() != 0) {
+                for (MyNode node : shortestPath) {
+                    //System.out.println(node.getX() + "," + node.getY());
+                    shortestPathList.add(node.getX() + "," + node.getY());
+                }
+            }
+
+            ArrayList<MyNode> closedNodesList = bfsSolver.getVisited();
+            ArrayList<String> closedNodes = new ArrayList<>();
+            for (MyNode node : closedNodesList) {
+                closedNodes.add((node.getX() + "," + node.getY()));
+            }
+
+
+            ArrayList<MyNode> openNodesList = bfsSolver.getPotential();
+            ArrayList<String> openNodes = new ArrayList<>();
+            for (MyNode node : openNodesList) {
+                openNodes.add((node.getX() + "," + node.getY()));
+            }
+
+            response.put("shortestPath", shortestPathList);
+            response.put("openNodes", openNodes);
+            response.put("closedNodes", closedNodes);
+
+        }
+
 
         //System.out.println("duration: " + duration);
 
 
         //shortestPathPoint.forEach(node -> System.out.println(node.getObj().getX()));
 
-        ArrayList<Node<Point>> nodes = new ArrayList<>();
-        nodes = (ArrayList<Node<Point>>) aStarPathFinding.getNodes();
-
-        ArrayList<String> openNodes = new ArrayList<>();
-        ArrayList<String> closedNodes = new ArrayList<>();
-
-        for (int i = 0; i < nodes.size(); i++) {
-            //System.out.println(nodes.get(i).getState());
-
-            switch (nodes.get(i).getState()) {
-                case OPEN:
-                    openNodes.add(i / COLS + "," + i % COLS);
-                    break;
-                case CLOSED:
-                    closedNodes.add(i / COLS + "," + i % COLS);
-                    break;
-                //case UNVISITED:
-                //    break;
-            }
-        }
-
-        for (int i = 0; i < shortestPathPoint.size(); i++) {
-            int x = (int) shortestPathPoint.get(i).getObj().getX();
-            int y = (int) shortestPathPoint.get(i).getObj().getY();
-            shortestPath.add(x + "," + y);
-        }
-
-        response.put("shortestPath", shortestPath);
-        response.put("openNodes", openNodes);
-        response.put("closedNodes", closedNodes);
 
 //        if (functionNumber == 0) { //aStar
 //            long startTime = System.currentTimeMillis();

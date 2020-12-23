@@ -1,4 +1,4 @@
-package com.furkandolasik.mazepuzzle.pathfinders;
+package com.furkandolasik.mazepuzzle.algorithms.astarpathfinding;
 
 /**
  * pathFinding.Edge class.

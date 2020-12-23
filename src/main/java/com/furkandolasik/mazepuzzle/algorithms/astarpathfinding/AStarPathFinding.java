@@ -1,7 +1,6 @@
-package com.furkandolasik.mazepuzzle.pathfinders;
+package com.furkandolasik.mazepuzzle.algorithms.astarpathfinding;
 
 import java.awt.*;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
