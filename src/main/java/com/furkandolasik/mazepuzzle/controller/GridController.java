@@ -54,7 +54,9 @@ public class GridController {
         if (functionNumber == 0) { //aStar
             long startTime = System.currentTimeMillis();
             System.out.println("A*");
+            long startTime = System.currentTimeMillis();
             MazeSolver aStar = new MazeSolver(matrix, functionNumber, heuristicNumber, startX, startY, endX, endY);
+            long endTime = System.currentTimeMillis();
 
 
             long endTime = System.currentTimeMillis();
@@ -82,7 +84,7 @@ public class GridController {
                 openNodes.add((node.getX() + "," + node.getY()));
             }
 
-
+            response.put("duration", (endTime - startTime));
             response.put("shortestPath", shortestPathList);
             response.put("openNodes", openNodes);
             response.put("closedNodes", closedNodes);
@@ -91,7 +93,9 @@ public class GridController {
 
             long startTime = System.currentTimeMillis();
             System.out.println("Best First");
+            long startTime = System.currentTimeMillis();
             MazeSolver bestFirst = new MazeSolver(matrix, functionNumber, heuristicNumber, startX, startY, endX, endY);
+            long endTime = System.currentTimeMillis();
 
 
             long endTime = System.currentTimeMillis();
@@ -119,14 +123,16 @@ public class GridController {
                 openNodes.add((node.getX() + "," + node.getY()));
             }
 
-
+            response.put("duration", (endTime - startTime));
             response.put("shortestPath", shortestPathList);
             response.put("openNodes", openNodes);
             response.put("closedNodes", closedNodes);
 
         } else if (functionNumber == 2) { //Breadth First
             System.out.println("DFS");
+            long startTime = System.currentTimeMillis();
             MazeSolver bfs = new MazeSolver(matrix, functionNumber, heuristicNumber, startX, startY, endX, endY);
+            long endTime = System.currentTimeMillis();
 
             Stack<Node> shortestPath = bfs.getPath();
             List<String> shortestPathList = new ArrayList<>();
@@ -149,7 +155,7 @@ public class GridController {
             for (Node node : openNodesList) {
                 openNodes.add((node.getX() + "," + node.getY()));
             }
-
+            response.put("duration", (endTime - startTime));
             response.put("shortestPath", shortestPathList);
             response.put("openNodes", openNodes);
             response.put("closedNodes", closedNodes);
