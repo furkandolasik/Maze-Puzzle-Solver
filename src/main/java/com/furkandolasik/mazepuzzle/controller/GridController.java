@@ -54,12 +54,10 @@ public class GridController {
         if (functionNumber == 0) { //aStar
             long startTime = System.currentTimeMillis();
             System.out.println("A*");
-            long startTime = System.currentTimeMillis();
             MazeSolver aStar = new MazeSolver(matrix, functionNumber, heuristicNumber, startX, startY, endX, endY);
             long endTime = System.currentTimeMillis();
 
 
-            long endTime = System.currentTimeMillis();
             System.out.println("duration: " + (endTime - startTime));
 
             Stack<Node> shortestPath = aStar.getPath();
@@ -91,11 +89,10 @@ public class GridController {
 
         } else if (functionNumber == 1) { //Best First
 
-            long startTime = System.currentTimeMillis();
+
             System.out.println("Best First");
             long startTime = System.currentTimeMillis();
             MazeSolver bestFirst = new MazeSolver(matrix, functionNumber, heuristicNumber, startX, startY, endX, endY);
-            long endTime = System.currentTimeMillis();
 
 
             long endTime = System.currentTimeMillis();
